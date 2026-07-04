@@ -2,7 +2,7 @@
 
 # OilPulse
 
-**A lightweight, real-time crude oil price monitor for macOS.**
+**A lightweight, native, local-first energy price monitor for macOS.**
 
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-blue)
 ![Language](https://img.shields.io/badge/language-Swift-orange)
@@ -17,13 +17,21 @@
 
 ## Overview
 
-**OilPulse** is a lightweight tool that keeps an eye on crude oil prices in real time and surfaces them through a small, native macOS app. It runs locally and quietly — no browser, no heavy background services — so the latest **Brent** and **WTI** prices and recent trends are always one click away.
+**OilPulse** is a lightweight macOS app for observing changes in the energy market. Its compact, native interface keeps the latest **Brent** and **WTI** prices, daily movements, and recent trends one click away.
 
-## Why it matters
+The app follows a **local-first** design: there is no browser to open and no heavy background service to maintain. Market observations are stored in a local SQLite database, so the most recent valid data remains available when the network is unavailable.
 
-The goal is simple: **help you notice oil price movements the moment they happen.**
+## Why OilPulse
 
-This is especially useful in the **United States**, where retail gas-station prices tend to follow crude oil with a short delay. When crude spikes, OilPulse lets you catch it early — so you can **fill up your tank *before* the pump prices catch up.** A few minutes of awareness can mean real savings at the gas station.
+Crude oil is an important leading signal in the energy value chain, but its movements do not flow immediately or proportionally into retail gasoline prices. Refining costs, gasoline futures, inventories, taxes, and regional supply and demand all shape the final price at the pump.
+
+OilPulse is not designed to promise that prices will rise or fall on a particular day. Instead, it turns scattered price movements into a clear, low-friction monitoring view that helps users:
+
+- Understand the current level and direction of Brent and WTI at a glance
+- Notice significant movements for market research or everyday decision support
+- Eventually trace the transmission from **crude oil → refined products → retail prices** through RBOB, crack spreads, and regional pump-price data
+
+For individuals, OilPulse can provide context when considering when to refuel, without promising guaranteed savings. For researchers, energy professionals, and fleet operators, it can serve as an extensible local foundation for monitoring energy-market signals.
 
 ## Features
 

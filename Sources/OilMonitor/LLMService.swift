@@ -158,6 +158,7 @@ final class LLMService: ObservableObject {
         if let v = s.crudeRbobLeadLagCorr { dict["crude_rbob_leadlag_corr"] = round(v * 100) / 100 }
         if let v = s.crackSpreadProxy  { dict["crack_spread_proxy"]    = round(v * 100) / 100 }
         if let v = s.crackSpreadChange { dict["crack_spread_change"]   = round(v * 100) / 100 }
+        if s.rbobRollDaysAdjusted > 0  { dict["rbob_roll_days_adjusted"] = s.rbobRollDaysAdjusted }
         if s.dataPointCount < 8        { dict["data_warning"]          = "insufficient_history" }
         let data = (try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)) ?? Data()
         return String(data: data, encoding: .utf8) ?? "{}"

@@ -84,6 +84,9 @@ struct LocalSignals {
     let crackSpreadProxy: Double?
     let crackSpreadChange: Double?
 
+    // Futures roll days detected & corrected in the RBOB series
+    let rbobRollDaysAdjusted: Int
+
     // Vehicle profile (from user settings)
     let tankGallons: Double
     let weeklyMiles: Double

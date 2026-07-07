@@ -15,7 +15,9 @@ struct StrategyEngine {
     ) -> LocalSignals {
         let bDaily = dailyCloses(brent)
         let wDaily = dailyCloses(wti)
-        let gDaily = dailyCloses(rbob)
+        let gDailyRaw = dailyCloses(rbob)
+        // RBOB 每月换月，换月日的跳价不是真实行情——用原油作参照修正后再计算信号
+        let (gDaily, rollDays) = rollAdjusted(gDailyRaw, reference: wDaily)
 
         let brentMom  = momentumPct(bDaily, days: 20)
         let wtiMom    = momentumPct(wDaily, days: 20)
@@ -23,13 +25,14 @@ struct StrategyEngine {
         let rbobShort = momentumPct(gDaily, days: 5)
 
         // Use WTI as the crude leg for crack spread (US gasoline tracks WTI)
-        let avg: ([( Date, Double)]) -> Double? = { pts in pts.last.map(\.1) }
-        let crackNow = crackSpread(crudePrice: avg(wDaily), rbobPrice: avg(gDaily))
+        // 价差水平用真实报价；价差变化用换月修正后的序列，避免跳价污染
+        let crackNow = crackSpread(crudePrice: wDaily.last?.price, rbobPrice: gDailyRaw.last?.price)
+        let crackNowAdj = crackSpread(crudePrice: wDaily.last?.price, rbobPrice: gDaily.last?.price)
         let crack20  = crackSpread(
             crudePrice: priceNDaysAgo(wDaily, days: 20),
             rbobPrice:  priceNDaysAgo(gDaily, days: 20)
         )
-        let crackChange: Double? = crackNow.flatMap { n in crack20.map { n - $0 } }
+        let crackChange: Double? = crackNowAdj.flatMap { n in crack20.map { n - $0 } }
 
         let (lagDays, lagCorr) = bestLeadLag(crudeDaily: wDaily, rbobDaily: gDaily)
 
@@ -45,10 +48,50 @@ struct StrategyEngine {
             leadLagDays: lagDays,
             crackSpreadProxy: crackNow,
             crackSpreadChange: crackChange,
+            rbobRollDaysAdjusted: rollDays,
             tankGallons: tankGallons,
             weeklyMiles: weeklyMiles,
             mpg: mpg
         )
+    }
+
+    // MARK: - Futures Roll Adjustment
+
+    /// 检测并修正换月跳价：当目标品种单日收益与参照品种（原油）方向相反且
+    /// 差值超过阈值时，判定为换月日。用参照品种当日收益重建该日价格，
+    /// 其后价格整体缩放，保证收益率序列连续。返回修正后序列和换月天数。
+    func rollAdjusted(
+        _ series: [(day: Date, price: Double)],
+        reference: [(day: Date, price: Double)],
+        divergenceThreshold: Double = 0.04
+    ) -> (series: [(day: Date, price: Double)], rollDays: Int) {
+        guard series.count >= 2 else { return (series, 0) }
+        let refReturns = Dictionary(uniqueKeysWithValues: dailyReturns(reference))
+
+        var out = series
+        var factor = 1.0
+        var rollDays = 0
+        for i in 1..<series.count {
+            let prevRaw = series[i-1].price
+            let curRaw  = series[i].price
+            if prevRaw > 0 {
+                let r = curRaw / prevRaw - 1
+                var refR: Double?
+                for offset in [0.0, -86400, 86400] {
+                    if let v = refReturns[series[i].day.addingTimeInterval(offset)] {
+                        refR = v
+                        break
+                    }
+                }
+                if let c = refR, r * c < 0, abs(r - c) > divergenceThreshold {
+                    // 换月日：让该日收益等于原油收益（最优估计），跳价归零
+                    factor = prevRaw * factor * (1 + c) / curRaw
+                    rollDays += 1
+                }
+            }
+            out[i].price = curRaw * factor
+        }
+        return (out, rollDays)
     }
 
     // MARK: - Daily Closes (dedup intraday → one close per calendar day)

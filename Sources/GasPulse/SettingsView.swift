@@ -52,7 +52,7 @@ struct SettingsView: View {
                     Text("English").tag("en")
                     Text("Español").tag("es")
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.radioGroup)
             }
 
             // ── Auto Refresh ───────────────────────────────────────────
@@ -125,29 +125,37 @@ struct SettingsView: View {
 
             // ── Vehicle ────────────────────────────────────────────────
             Section(loc("My Vehicle", "我的车辆", "Mi vehículo")) {
-                LabeledContent(loc("Tank Capacity", "油箱容量", "Cap. del tanque")) {
-                    HStack {
-                        TextField("15", value: $tankGallons, format: .number)
-                            .textFieldStyle(.roundedBorder).frame(width: 70)
-                        Text(loc("gal", "加仑", "gal")).font(.caption).foregroundStyle(.secondary)
-                    }
+                HStack {
+                    Text(loc("Tank Capacity", "油箱容量", "Cap. del tanque"))
+                    Spacer()
+                    TextField("15", value: $tankGallons, format: .number)
+                        .textFieldStyle(.roundedBorder).frame(width: 70)
+                        .multilineTextAlignment(.trailing)
+                    Text(loc("gal", "加仑", "gal")).font(.caption).foregroundStyle(.secondary)
                 }
-                LabeledContent(loc("Weekly Miles", "每周行驶", "Millas semanales")) {
-                    HStack {
-                        TextField("300", value: $weeklyMiles, format: .number)
-                            .textFieldStyle(.roundedBorder).frame(width: 70)
-                        Text(loc("mi", "英里", "mi")).font(.caption).foregroundStyle(.secondary)
-                    }
+                HStack {
+                    Text(loc("Weekly Miles", "每周行驶", "Millas semanales"))
+                    Spacer()
+                    TextField("300", value: $weeklyMiles, format: .number)
+                        .textFieldStyle(.roundedBorder).frame(width: 70)
+                        .multilineTextAlignment(.trailing)
+                    Text(loc("mi", "英里", "mi")).font(.caption).foregroundStyle(.secondary)
                 }
-                LabeledContent(loc("Fuel Economy (MPG)", "平均油耗 (MPG)", "Consumo (MPG)")) {
+                HStack {
+                    Text(loc("Fuel Economy (MPG)", "平均油耗 (MPG)", "Consumo (MPG)"))
+                    Spacer()
                     TextField("30", value: $mpg, format: .number)
                         .textFieldStyle(.roundedBorder).frame(width: 70)
+                        .multilineTextAlignment(.trailing)
+                    Text("MPG").font(.caption).foregroundStyle(.secondary)
                 }
                 if mpg > 0 {
-                    LabeledContent(
-                        loc("Est. Weekly Usage", "估算周耗油", "Uso sem. estimado"),
-                        value: String(format: loc("%.1f gal", "%.1f 加仑", "%.1f gal"), weeklyMiles / mpg)
-                    )
+                    HStack {
+                        Text(loc("Est. Weekly Usage", "估算周耗油", "Uso sem. estimado"))
+                        Spacer()
+                        Text(String(format: loc("%.1f gal", "%.1f 加仑", "%.1f gal"), weeklyMiles / mpg))
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
 

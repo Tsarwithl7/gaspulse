@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MenuBarContentView: View {
     @EnvironmentObject var vm: OilPriceViewModel
+    @AppStorage("appLanguage") private var lang: String = "en"  // triggers re-render on language change
     @State private var showSettings = false
     @State private var showStrategy = false
 

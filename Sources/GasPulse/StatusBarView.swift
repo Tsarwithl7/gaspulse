@@ -4,7 +4,7 @@ struct StatusBarView: View {
     @ObservedObject var vm: OilPriceViewModel
     @Binding var showSettings: Bool
     @Binding var showStrategy: Bool
-    @AppStorage("appLanguage") private var lang: String = "zh"
+    @AppStorage("appLanguage") private var lang: String = "en"
 
     private var dot: Color {
         switch vm.dataStatus {
@@ -17,12 +17,12 @@ struct StatusBarView: View {
 
     private var statusLabel: String {
         switch vm.dataStatus {
-        case .normal:  return loc("Live",     "数据正常")
-        case .cached:  return loc("Cached",   "缓存数据")
-        case .offline: return loc("Offline",  "离线")
-        case .failed:  return loc("Failed",   "更新失败")
-        case .noData:  return loc("No Data",  "无数据")
-        case .loading: return loc("Loading…", "加载中…")
+        case .normal:  return loc("Live",     "数据正常", "En vivo")
+        case .cached:  return loc("Cached",   "缓存数据", "En caché")
+        case .offline: return loc("Offline",  "离线",     "Sin conexión")
+        case .failed:  return loc("Failed",   "更新失败", "Error")
+        case .noData:  return loc("No Data",  "无数据",   "Sin datos")
+        case .loading: return loc("Loading…", "加载中…",  "Cargando…")
         }
     }
 
@@ -46,12 +46,12 @@ struct StatusBarView: View {
                     } else {
                         Image(systemName: "arrow.clockwise").font(.system(size: 10))
                     }
-                    Text(loc("Refresh", "更新")).font(.caption)
+                    Text(loc("Refresh", "更新", "Actualizar")).font(.caption)
                 }
             }
             .buttonStyle(.borderless)
             .disabled(vm.isRefreshing)
-            .help(loc("Refresh (10s cooldown)", "普通更新（10 秒冷却）"))
+            .help(loc("Refresh (10s cooldown)", "普通更新（10 秒冷却）", "Actualizar (10s de pausa)"))
 
             // Force refresh
             Button { vm.forceRefresh() } label: {
@@ -61,12 +61,14 @@ struct StatusBarView: View {
                     } else {
                         Image(systemName: "bolt.fill").font(.system(size: 10))
                     }
-                    Text(loc("Force", "强制更新")).font(.caption)
+                    Text(loc("Force", "强制更新", "Forzar")).font(.caption)
                 }
             }
             .buttonStyle(.borderless)
             .disabled(vm.isForceRefreshing)
-            .help(loc("Bypass cooldown and fetch immediately", "忽略冷却，立即向数据源重新请求"))
+            .help(loc("Bypass cooldown and fetch immediately",
+                      "忽略冷却，立即向数据源重新请求",
+                      "Ignorar pausa y actualizar ahora"))
 
             Divider().frame(height: 12)
 
@@ -76,7 +78,8 @@ struct StatusBarView: View {
                     Text("\(vm.enabledAlertCount)").font(.system(size: 10)).foregroundStyle(.orange)
                 }
                 .help(loc("\(vm.enabledAlertCount) price alert(s) active",
-                          "已启用 \(vm.enabledAlertCount) 条价格提醒"))
+                          "已启用 \(vm.enabledAlertCount) 条价格提醒",
+                          "\(vm.enabledAlertCount) alerta(s) activa(s)"))
             }
 
             // AI Strategy
@@ -86,14 +89,14 @@ struct StatusBarView: View {
                     .foregroundStyle(vm.strategyPlan != nil ? .purple : .secondary)
             }
             .buttonStyle(.borderless)
-            .help(loc("AI Fill-up Strategy", "AI 加油策略"))
+            .help(loc("AI Fill-up Strategy", "AI 加油策略", "Estrategia de repostaje IA"))
 
             // Settings
             Button { showSettings = true } label: {
                 Image(systemName: "gear").font(.system(size: 12))
             }
             .buttonStyle(.borderless)
-            .help(loc("Settings", "设置"))
+            .help(loc("Settings", "设置", "Ajustes"))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)

@@ -362,7 +362,8 @@ final class OilPriceViewModel: ObservableObject {
             guard signals.dataPointCount >= 5 else {
                 strategyError = loc(
                     "Insufficient history (only \(signals.dataPointCount) days) — try again later.",
-                    "历史数据不足（仅 \(signals.dataPointCount) 天），请稍后再试"
+                    "历史数据不足（仅 \(signals.dataPointCount) 天），请稍后再试",
+                    "Historial insuficiente (solo \(signals.dataPointCount) días) — inténtalo más tarde."
                 )
                 return
             }
@@ -407,10 +408,15 @@ final class OilPriceViewModel: ObservableObject {
     }
 
     var lastUpdatedText: String {
-        guard let t = lastRefreshedAt else { return loc("Never refreshed", "尚未刷新") }
+        guard let t = lastRefreshedAt else {
+            return loc("Never refreshed", "尚未刷新", "Sin actualizar")
+        }
         let diff = Date().timeIntervalSince(t)
-        if diff < 60 { return loc("Just updated", "刚刚更新") }
-        if diff < 3600 { return loc("\(Int(diff / 60))m ago", "\(Int(diff / 60)) 分钟前") }
+        if diff < 60 { return loc("Just updated", "刚刚更新", "Actualizado") }
+        if diff < 3600 {
+            let m = Int(diff / 60)
+            return loc("\(m)m ago", "\(m) 分钟前", "hace \(m)m")
+        }
         let fmt = DateFormatter()
         fmt.dateFormat = "HH:mm"
         return fmt.string(from: t)
@@ -421,7 +427,7 @@ final class OilPriceViewModel: ObservableObject {
         guard let t = ref else { return nil }
         let fmt = DateFormatter()
         fmt.dateFormat = "M/d HH:mm"
-        return loc("Market ", "行情 ") + fmt.string(from: t)
+        return loc("Market ", "行情 ", "Mercado ") + fmt.string(from: t)
     }
 }
 

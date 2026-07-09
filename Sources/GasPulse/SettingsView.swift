@@ -7,7 +7,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var notifications = NotificationService.shared
 
-    @AppStorage("appLanguage") private var lang: String = "zh"
+    @AppStorage("appLanguage") private var lang: String = "en"
     @State private var launchAtLogin = false
 
     // Vehicle
@@ -46,32 +46,33 @@ struct SettingsView: View {
         Form {
 
             // ── Language ───────────────────────────────────────────────
-            Section(loc("Language", "语言")) {
-                Picker(loc("Language", "语言"), selection: $lang) {
+            Section(loc("Language", "语言", "Idioma")) {
+                Picker(loc("Language", "语言", "Idioma"), selection: $lang) {
                     Text("中文").tag("zh")
                     Text("English").tag("en")
+                    Text("Español").tag("es")
                 }
                 .pickerStyle(.segmented)
             }
 
             // ── Auto Refresh ───────────────────────────────────────────
-            Section(loc("Auto Refresh", "自动刷新")) {
-                Picker(loc("Interval", "刷新频率"), selection: $vm.refreshIntervalMinutes) {
-                    Text(loc("Every 15 min", "15 分钟")).tag(15)
-                    Text(loc("Every 30 min", "30 分钟")).tag(30)
-                    Text(loc("Every 60 min", "60 分钟")).tag(60)
+            Section(loc("Auto Refresh", "自动刷新", "Actualización auto.")) {
+                Picker(loc("Interval", "刷新频率", "Intervalo"), selection: $vm.refreshIntervalMinutes) {
+                    Text(loc("Every 15 min", "15 分钟", "Cada 15 min")).tag(15)
+                    Text(loc("Every 30 min", "30 分钟", "Cada 30 min")).tag(30)
+                    Text(loc("Every 60 min", "60 分钟", "Cada 60 min")).tag(60)
                 }
                 .onChange(of: vm.refreshIntervalMinutes) { _, _ in vm.updateTimerInterval() }
             }
 
             // ── Startup ────────────────────────────────────────────────
-            Section(loc("Startup", "启动")) {
-                Toggle(loc("Launch at Login", "开机自动启动"), isOn: $launchAtLogin)
+            Section(loc("Startup", "启动", "Inicio")) {
+                Toggle(loc("Launch at Login", "开机自动启动", "Iniciar al encender"), isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, v in setLaunchAtLogin(v) }
             }
 
             // ── Price Alerts ───────────────────────────────────────────
-            Section(loc("Price Alerts", "价格提醒")) {
+            Section(loc("Price Alerts", "价格提醒", "Alertas de precio")) {
                 notificationPermissionRow
 
                 AlertSymbolSection(
@@ -97,7 +98,7 @@ struct SettingsView: View {
                     }
                 )
                 AlertSymbolSection(
-                    symbolName: loc("RBOB Gasoline", "RBOB 汽油"),
+                    symbolName: loc("RBOB Gasoline", "RBOB 汽油", "Gasolina RBOB"),
                     currentPrice: vm.gasolinePrice?.price,
                     upperEnabled: $gasolineUpperEnabled, upperText: $gUpper,
                     lowerEnabled: $gasolineLowerEnabled, lowerText: $gLower,
@@ -110,7 +111,7 @@ struct SettingsView: View {
 
                 HStack {
                     Spacer()
-                    Button(loc("Send Test Notification", "发送测试通知")) {
+                    Button(loc("Send Test Notification", "发送测试通知", "Enviar notificación de prueba")) {
                         Task {
                             if notifications.authorizationStatus == .notDetermined {
                                 _ = await notifications.requestPermission()
@@ -123,45 +124,45 @@ struct SettingsView: View {
             }
 
             // ── Vehicle ────────────────────────────────────────────────
-            Section(loc("My Vehicle", "我的车辆")) {
-                LabeledContent(loc("Tank Capacity", "油箱容量")) {
+            Section(loc("My Vehicle", "我的车辆", "Mi vehículo")) {
+                LabeledContent(loc("Tank Capacity", "油箱容量", "Cap. del tanque")) {
                     HStack {
                         TextField("15", value: $tankGallons, format: .number)
                             .textFieldStyle(.roundedBorder).frame(width: 70)
-                        Text(loc("gal", "加仑")).font(.caption).foregroundStyle(.secondary)
+                        Text(loc("gal", "加仑", "gal")).font(.caption).foregroundStyle(.secondary)
                     }
                 }
-                LabeledContent(loc("Weekly Miles", "每周行驶")) {
+                LabeledContent(loc("Weekly Miles", "每周行驶", "Millas semanales")) {
                     HStack {
                         TextField("300", value: $weeklyMiles, format: .number)
                             .textFieldStyle(.roundedBorder).frame(width: 70)
-                        Text(loc("mi", "英里")).font(.caption).foregroundStyle(.secondary)
+                        Text(loc("mi", "英里", "mi")).font(.caption).foregroundStyle(.secondary)
                     }
                 }
-                LabeledContent(loc("Fuel Economy (MPG)", "平均油耗 (MPG)")) {
+                LabeledContent(loc("Fuel Economy (MPG)", "平均油耗 (MPG)", "Consumo (MPG)")) {
                     TextField("30", value: $mpg, format: .number)
                         .textFieldStyle(.roundedBorder).frame(width: 70)
                 }
                 if mpg > 0 {
                     LabeledContent(
-                        loc("Est. Weekly Usage", "估算周耗油"),
-                        value: String(format: loc("%.1f gal", "%.1f 加仑"), weeklyMiles / mpg)
+                        loc("Est. Weekly Usage", "估算周耗油", "Uso sem. estimado"),
+                        value: String(format: loc("%.1f gal", "%.1f 加仑", "%.1f gal"), weeklyMiles / mpg)
                     )
                 }
             }
 
             // ── AI Server ─────────────────────────────────────────────
-            Section(loc("AI Strategy Server", "AI 策略推理服务器")) {
+            Section(loc("AI Strategy Server", "AI 策略推理服务器", "Servidor IA")) {
                 LabeledContent("Base URL") {
                     TextField("http://192.168.1.x:11434/v1", text: $llmBaseURL)
                         .textFieldStyle(.roundedBorder)
                 }
-                LabeledContent(loc("Model Name", "模型名称")) {
+                LabeledContent(loc("Model Name", "模型名称", "Nombre del modelo")) {
                     TextField("qwen2.5:14b", text: $llmModelName)
                         .textFieldStyle(.roundedBorder)
                 }
                 LabeledContent("API Key") {
-                    SecureField(loc("Leave blank for local", "本地服务可留空"), text: $apiKeyField)
+                    SecureField(loc("Leave blank for local", "本地服务可留空", "Vacío para local"), text: $apiKeyField)
                         .textFieldStyle(.roundedBorder)
                         .onChange(of: apiKeyField) { _, v in
                             KeychainHelper.setAPIKey(v.isEmpty ? nil : v)
@@ -169,13 +170,13 @@ struct SettingsView: View {
                 }
 
                 HStack {
-                    Button(loc("Test Connection", "测试连接")) {
+                    Button(loc("Test Connection", "测试连接", "Probar conexión")) {
                         llmTestResult = nil; llmTesting = true
                         Task {
                             let r = await LLMService.shared.testConnection()
                             switch r {
                             case .success(let msg): llmTestResult = "✓ " + msg
-                            case .failure(let e):   llmTestResult = "✗ " + (e.errorDescription ?? loc("Failed", "失败"))
+                            case .failure(let e):   llmTestResult = "✗ " + (e.errorDescription ?? loc("Failed", "失败", "Error"))
                             }
                             llmTesting = false
                         }
@@ -198,13 +199,13 @@ struct SettingsView: View {
             }
 
             // ── About ─────────────────────────────────────────────────
-            Section(loc("About", "关于")) {
-                LabeledContent(loc("Version", "版本"), value: "1.0.0 (MVP)")
-                LabeledContent(loc("Data Source", "数据来源"),
-                               value: loc("Yahoo Finance (delayed quotes)", "Yahoo Finance（延迟行情）"))
+            Section(loc("About", "关于", "Acerca de")) {
+                LabeledContent(loc("Version", "版本", "Versión"), value: "1.1.0")
+                LabeledContent(loc("Data Source", "数据来源", "Fuente de datos"),
+                               value: loc("Yahoo Finance (delayed quotes)", "Yahoo Finance（延迟行情）", "Yahoo Finance (cotiz. retrasadas)"))
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(loc("Disclaimer", "免责声明"))
+                    Text(loc("Disclaimer", "免责声明", "Aviso legal"))
                         .font(.caption).fontWeight(.medium)
                     Text(loc(
                         "Data is for personal reference only and may be delayed. Not financial or investment advice.",
@@ -216,7 +217,7 @@ struct SettingsView: View {
             }
 
             Section {
-                Button(loc("Quit GasPulse", "退出 GasPulse")) { NSApplication.shared.terminate(nil) }
+                Button(loc("Quit GasPulse", "退出 GasPulse", "Salir de GasPulse")) { NSApplication.shared.terminate(nil) }
                     .foregroundStyle(.red)
             }
         }
@@ -224,7 +225,7 @@ struct SettingsView: View {
         .frame(width: 400, height: 800)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button(loc("Done", "完成")) { dismiss() }
+                Button(loc("Done", "完成", "Listo")) { dismiss() }
             }
         }
         .onAppear {
@@ -248,23 +249,23 @@ struct SettingsView: View {
             switch notifications.authorizationStatus {
             case .authorized:
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                Text(loc("Notifications authorized", "通知权限已授权"))
+                Text(loc("Notifications authorized", "通知权限已授权", "Notificaciones autorizadas"))
                     .font(.caption).foregroundStyle(.secondary)
             case .denied:
                 Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
-                Text(loc("Notifications denied", "通知权限已拒绝"))
+                Text(loc("Notifications denied", "通知权限已拒绝", "Notificaciones denegadas"))
                     .font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Button(loc("Open System Settings", "前往系统设置")) {
+                Button(loc("Open System Settings", "前往系统设置", "Ajustes del sistema")) {
                     NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!)
                 }
                 .font(.caption)
             default:
                 Image(systemName: "bell.badge").foregroundStyle(.secondary)
-                Text(loc("Notifications not authorized", "尚未授权通知"))
+                Text(loc("Notifications not authorized", "尚未授权通知", "Notificaciones sin autorizar"))
                     .font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Button(loc("Request Permission", "请求权限")) {
+                Button(loc("Request Permission", "请求权限", "Solicitar permiso")) {
                     Task { _ = await notifications.requestPermission() }
                 }
                 .font(.caption)
@@ -298,7 +299,7 @@ private struct AlertSymbolSection: View {
     @Binding var lowerText: String
     let onCommit: () -> Void
 
-    @AppStorage("appLanguage") private var lang: String = "zh"
+    @AppStorage("appLanguage") private var lang: String = "en"
 
     private var upperValid: Bool { Double(upperText) ?? 0 > 0 }
     private var lowerValid: Bool { Double(lowerText) ?? 0 > 0 }
@@ -318,33 +319,33 @@ private struct AlertSymbolSection: View {
             }
 
             HStack(spacing: 6) {
-                Toggle(loc("Upper", "上限"), isOn: $upperEnabled)
+                Toggle(loc("Upper", "上限", "Límite sup."), isOn: $upperEnabled)
                     .toggleStyle(.checkbox).disabled(!upperValid)
                     .onChange(of: upperEnabled) { _, _ in onCommit() }
-                TextField(loc("Price", "价格"), text: $upperText)
+                TextField(loc("Price", "价格", "Precio"), text: $upperText)
                     .textFieldStyle(.roundedBorder).frame(width: 80)
                     .onChange(of: upperText) { _, _ in
                         if let v = Double(upperText), v > 0 { onCommit() }
                         if upperEnabled && !upperValid { upperEnabled = false }
                     }
-                Text(loc("alert above (USD)", "USD 以上提醒")).font(.caption).foregroundStyle(.secondary)
+                Text(loc("alert above (USD)", "USD 以上提醒", "alertar por encima (USD)")).font(.caption).foregroundStyle(.secondary)
             }
 
             HStack(spacing: 6) {
-                Toggle(loc("Lower", "下限"), isOn: $lowerEnabled)
+                Toggle(loc("Lower", "下限", "Límite inf."), isOn: $lowerEnabled)
                     .toggleStyle(.checkbox).disabled(!lowerValid)
                     .onChange(of: lowerEnabled) { _, _ in onCommit() }
-                TextField(loc("Price", "价格"), text: $lowerText)
+                TextField(loc("Price", "价格", "Precio"), text: $lowerText)
                     .textFieldStyle(.roundedBorder).frame(width: 80)
                     .onChange(of: lowerText) { _, _ in
                         if let v = Double(lowerText), v > 0 { onCommit() }
                         if lowerEnabled && !lowerValid { lowerEnabled = false }
                     }
-                Text(loc("alert below (USD)", "USD 以下提醒")).font(.caption).foregroundStyle(.secondary)
+                Text(loc("alert below (USD)", "USD 以下提醒", "alertar por debajo (USD)")).font(.caption).foregroundStyle(.secondary)
             }
 
             if !bothValid {
-                Text(loc("Lower must be less than upper", "下限价格必须小于上限价格"))
+                Text(loc("Lower must be less than upper", "下限价格必须小于上限价格", "El límite inf. debe ser menor"))
                     .font(.caption).foregroundStyle(.red)
             }
         }

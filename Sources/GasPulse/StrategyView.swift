@@ -5,7 +5,7 @@ import SwiftUI
 struct StrategyView: View {
     @EnvironmentObject var vm: OilPriceViewModel
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("appLanguage") private var lang: String = "zh"
+    @AppStorage("appLanguage") private var lang: String = "en"
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -13,9 +13,9 @@ struct StrategyView: View {
             // Header
             HStack {
                 Image(systemName: "wand.and.stars").foregroundStyle(.purple)
-                Text(loc("AI Fill-up Strategy", "AI 加油策略")).font(.headline)
+                Text(loc("AI Fill-up Strategy", "AI 加油策略", "Estrategia de repostaje IA")).font(.headline)
                 Spacer()
-                Button(loc("Done", "完成")) { dismiss() }.buttonStyle(.borderless)
+                Button(loc("Done", "完成", "Listo")) { dismiss() }.buttonStyle(.borderless)
             }
             .padding()
 
@@ -30,7 +30,7 @@ struct StrategyView: View {
                             Spacer()
                             VStack(spacing: 8) {
                                 ProgressView()
-                                Text(loc("Analyzing…", "正在分析…"))
+                                Text(loc("Analyzing…", "正在分析…", "Analizando…"))
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -66,8 +66,8 @@ struct StrategyView: View {
                         ProgressView().scaleEffect(0.7)
                     } else {
                         Label(vm.strategyPlan == nil
-                              ? loc("Analyze", "生成策略")
-                              : loc("Re-analyze", "重新生成"),
+                              ? loc("Analyze", "生成策略", "Analizar")
+                              : loc("Re-analyze", "重新生成", "Reanalizar"),
                               systemImage: "arrow.clockwise")
                             .font(.caption)
                     }
@@ -86,7 +86,7 @@ struct StrategyView: View {
 private struct StrategyPlanCard: View {
     let plan: StrategyPlan
     let vm: OilPriceViewModel
-    @AppStorage("appLanguage") private var lang: String = "zh"
+    @AppStorage("appLanguage") private var lang: String = "en"
 
     private var rbobPrice: Double { vm.gasolinePrice?.price ?? 0 }
     private var weeklyGal: Double {
@@ -109,7 +109,7 @@ private struct StrategyPlanCard: View {
 
             HStack(spacing: 4) {
                 Image(systemName: trendIcon).foregroundStyle(trendColor)
-                Text("\(loc("1-2 Week Trend:", "1-2 周趋势：")) \(plan.trend.displayText)")
+                Text("\(loc("1-2 Week Trend:", "1-2 周趋势：", "Tendencia 1-2 sem.:")) \(plan.trend.displayText)")
                     .font(.caption).foregroundStyle(.secondary)
             }
 
@@ -127,7 +127,7 @@ private struct StrategyPlanCard: View {
             if rbobPrice > 0 && weeklyGal > 0 && plan.estimatedPriceChangePct != 0 {
                 Divider()
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(loc("Based on your vehicle usage", "基于你的用车情况"))
+                    Text(loc("Based on your vehicle usage", "基于你的用车情况", "Basado en tu vehículo"))
                         .font(.caption).fontWeight(.medium).foregroundStyle(.secondary)
                     Text(vehicleText)
                         .font(.caption).foregroundStyle(.secondary)
@@ -136,7 +136,7 @@ private struct StrategyPlanCard: View {
             }
 
             HStack {
-                Text("\(loc("Generated", "生成于")) \(relativeTime)")
+                Text("\(loc("Generated", "生成于", "Generado")) \(relativeTime)")
                     .font(.system(size: 10)).foregroundStyle(.tertiary)
                 Text("·").foregroundStyle(.tertiary).font(.system(size: 10))
                 Text(plan.modelName)
@@ -169,24 +169,31 @@ private struct StrategyPlanCard: View {
     private var vehicleText: String {
         let pct   = plan.estimatedPriceChangePct
         let extra = abs(estimatedExtra)
-        if loc("en", "zh") == "en" {
-            let dir  = pct >= 0 ? "rise" : "fall"
-            let sign = pct >= 0 ? "extra" : "saved"
-            return String(format: "RBOB est. to %@ ~%.1f%%. At %.1f gal/week, next week's fuel cost ~$%.2f %@.",
-                          dir, abs(pct), weeklyGal, extra, sign)
-        } else {
+        let currentLang = UserDefaults.standard.string(forKey: "appLanguage") ?? "en"
+        if currentLang == "zh" {
             let dir  = pct >= 0 ? "上涨" : "下跌"
             let sign = pct >= 0 ? "多花" : "少花"
             return String(format: "预计 RBOB %@约 %.1f%%，按每周 %.1f 加仑用量，下周油费约%@ $%.2f",
                           dir, abs(pct), weeklyGal, sign, extra)
+        } else if currentLang == "es" {
+            let dir  = pct >= 0 ? "subir" : "bajar"
+            let sign = pct >= 0 ? "extra" : "ahorrado"
+            return String(format: "RBOB est. %@ ~%.1f%%. A %.1f gal/semana, costo próxima semana ~$%.2f %@.",
+                          dir, abs(pct), weeklyGal, extra, sign)
+        } else {
+            let dir  = pct >= 0 ? "rise" : "fall"
+            let sign = pct >= 0 ? "extra" : "saved"
+            return String(format: "RBOB est. to %@ ~%.1f%%. At %.1f gal/week, next week's fuel cost ~$%.2f %@.",
+                          dir, abs(pct), weeklyGal, extra, sign)
         }
     }
 
     private var relativeTime: String {
         let diff = Date().timeIntervalSince(plan.generatedAt)
-        if diff < 60    { return loc("just now", "刚刚") }
-        if diff < 3600  { return loc("\(Int(diff / 60))m ago",  "\(Int(diff / 60)) 分钟前") }
-        if diff < 86400 { return loc("\(Int(diff / 3600))h ago", "\(Int(diff / 3600)) 小时前") }
+        let m = Int(diff / 60); let h = Int(diff / 3600)
+        if diff < 60    { return loc("just now", "刚刚", "ahora") }
+        if diff < 3600  { return loc("\(m)m ago", "\(m) 分钟前", "hace \(m)m") }
+        if diff < 86400 { return loc("\(h)h ago", "\(h) 小时前", "hace \(h)h") }
         let fmt = DateFormatter(); fmt.dateFormat = "M/d HH:mm"
         return fmt.string(from: plan.generatedAt)
     }
@@ -227,10 +234,10 @@ private struct RecommendationBadge: View {
 
 private struct ConfidenceChip: View {
     let confidence: StrategyConfidence
-    @AppStorage("appLanguage") private var lang: String = "zh"
+    @AppStorage("appLanguage") private var lang: String = "en"
 
     var body: some View {
-        Text("\(loc("Confidence:", "置信度：")) \(confidence.displayText)")
+        Text("\(loc("Confidence:", "置信度：", "Confianza:")) \(confidence.displayText)")
             .font(.caption)
             .foregroundStyle(.secondary)
             .padding(.horizontal, 8)
@@ -240,14 +247,15 @@ private struct ConfidenceChip: View {
 }
 
 private struct EmptyStrategyView: View {
-    @AppStorage("appLanguage") private var lang: String = "zh"
+    @AppStorage("appLanguage") private var lang: String = "en"
 
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "wand.and.stars").font(.largeTitle).foregroundStyle(.secondary)
             Text(loc(
                 "Tap Analyze — AI will review recent\nBrent, WTI & RBOB futures trends\nand recommend when to fill up.",
-                "点击「生成策略」，AI 将分析近期\nBrent、WTI 与 RBOB 期货走势，\n给出加油时机建议。"
+                "点击「生成策略」，AI 将分析近期\nBrent、WTI 与 RBOB 期货走势，\n给出加油时机建议。",
+                "Pulsa Analizar — la IA revisará\ntendencias recientes de Brent, WTI y RBOB\ny recomendará cuándo repostar."
             ))
             .multilineTextAlignment(.center)
             .font(.callout)

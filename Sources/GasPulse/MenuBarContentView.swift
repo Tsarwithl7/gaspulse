@@ -10,7 +10,7 @@ struct MenuBarContentView: View {
 
             // ── Header ──────────────────────────────────────────────────
             HStack {
-                Text("Oil Monitor")
+                Text("GasPulse")
                     .font(.headline)
                     .fontWeight(.semibold)
                 Spacer()

@@ -215,7 +215,7 @@ struct SettingsView: View {
             }
 
             Section {
-                Button("退出 OilPulse") { NSApplication.shared.terminate(nil) }
+                Button("退出 GasPulse") { NSApplication.shared.terminate(nil) }
                     .foregroundStyle(.red)
             }
         }

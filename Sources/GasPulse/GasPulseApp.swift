@@ -1,11 +1,11 @@
 import SwiftUI
 
 @main
-struct OilMonitorApp: App {
+struct GasPulseApp: App {
     @StateObject private var viewModel = OilPriceViewModel()
 
     var body: some Scene {
-        Window("Oil Monitor", id: "main") {
+        Window("GasPulse", id: "main") {
             MenuBarContentView()
                 .environmentObject(viewModel)
         }

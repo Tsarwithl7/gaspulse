@@ -12,7 +12,7 @@ actor DatabaseService {
 
     nonisolated private func openAndSetup() {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("OilMonitor")
+            .appendingPathComponent("GasPulse")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let path = dir.appendingPathComponent("prices.db").path
 

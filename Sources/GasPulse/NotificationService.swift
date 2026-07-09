@@ -36,7 +36,7 @@ final class NotificationService: NSObject, ObservableObject {
         content.title = firing.notificationTitle
         content.body  = firing.notificationBody
         content.sound = .default
-        let id = "oilpulse-\(firing.symbol.rawValue)-\(firing.direction == .above ? "up" : "dn")-\(Int(firing.marketTime.timeIntervalSince1970))"
+        let id = "gaspulse-\(firing.symbol.rawValue)-\(firing.direction == .above ? "up" : "dn")-\(Int(firing.marketTime.timeIntervalSince1970))"
         let request = UNNotificationRequest(identifier: id, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
     }
@@ -44,9 +44,9 @@ final class NotificationService: NSObject, ObservableObject {
     func sendTest(for symbol: OilSymbol) {
         let content = UNMutableNotificationContent()
         content.title = "\(symbol.displayName) 价格提醒测试"
-        content.body  = "通知权限正常，OilPulse 可以发送价格提醒。"
+        content.body  = "通知权限正常，GasPulse 可以发送价格提醒。"
         content.sound = .default
-        let request = UNNotificationRequest(identifier: "oilpulse-test-\(symbol.rawValue)", content: content, trigger: nil)
+        let request = UNNotificationRequest(identifier: "gaspulse-test-\(symbol.rawValue)", content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
     }
 }

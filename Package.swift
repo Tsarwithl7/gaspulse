@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "OilPulse",
+    name: "GasPulse",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
-            name: "OilPulse",
-            path: "Sources/OilMonitor",
+            name: "GasPulse",
+            path: "Sources/GasPulse",
             linkerSettings: [.linkedLibrary("sqlite3")]
         )
     ]

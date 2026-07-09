@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_NAME="OilPulse"
+APP_NAME="GasPulse"
 BUNDLE="${APP_NAME}.app"
 
 echo "▶ Building ${APP_NAME} (release)…"

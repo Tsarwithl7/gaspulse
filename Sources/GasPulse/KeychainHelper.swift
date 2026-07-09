@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 enum KeychainHelper {
-    private static let service = "com.user.OilPulse"
+    private static let service = "com.user.GasPulse"
     private static let account = "llmAPIKey"
 
     @discardableResult

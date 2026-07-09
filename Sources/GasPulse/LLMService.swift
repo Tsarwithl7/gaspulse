@@ -19,15 +19,19 @@ final class LLMService: ObservableObject {
     func generatePlan(from signals: LocalSignals) async throws -> StrategyPlan {
         guard !baseURL.isEmpty, !modelName.isEmpty else { throw LLMError.notConfigured }
 
+        let isEnglish = UserDefaults.standard.string(forKey: "appLanguage") == "en"
+        let outlookLang   = isEnglish ? "1-2 sentences in English" : "1-2句中文"
+        let reasoningLang = isEnglish ? "1-2 sentences in English citing key signals" : "1-2句中文理由，引用关键信号"
         let systemMsg = """
-        你是一名能源市场分析助手。已知价格传导链：原油（Brent/WTI）领先 RBOB 汽油期货，\
-        RBOB 领先美国零售泵价约 1-2 周。基于提供的量化信号，判断用户"现在应立即加油"还是"稍后再加"，\
-        并给出 1-2 周趋势展望。不要输出任何金额或省钱数字。\
-        必须只返回一个 JSON 对象，不要包含解释、Markdown 或代码块。\
-        JSON 结构如下（所有字段必须存在）：\
+        You are an energy-market analysis assistant. The price transmission chain: crude (Brent/WTI) \
+        leads RBOB gasoline futures, which leads US retail pump prices by ~1-2 weeks. \
+        Based on the quantitative signals provided, decide whether the user should "fill up now" or "wait", \
+        and give a 1-2 week price outlook. Do not output any dollar savings figures. \
+        Return ONLY a single JSON object — no explanation, no Markdown, no code fences. \
+        All fields are required: \
         {"recommendation":"fill_now|wait|neutral","confidence":"low|medium|high",\
-        "trend":"rising|falling|stable","outlook":"1-2句中文展望",\
-        "reasoning":"1-2句中文理由，引用关键信号","estimatedPriceChangePct":数字}
+        "trend":"rising|falling|stable","outlook":"\(outlookLang)",\
+        "reasoning":"\(reasoningLang)","estimatedPriceChangePct":number}
         """
 
         let userMsg = buildSignalJSON(signals)
@@ -45,7 +49,7 @@ final class LLMService: ObservableObject {
 
         let req = try makeRequest(body: body)
         let (data, response) = try await URLSession.shared.data(for: req)
-        guard let http = response as? HTTPURLResponse else { throw LLMError.unreachable("无响应") }
+        guard let http = response as? HTTPURLResponse else { throw LLMError.unreachable("no response") }
         guard http.statusCode == 200 else {
             let snippet = String(data: data.prefix(200), encoding: .utf8) ?? ""
             throw LLMError.httpStatus(http.statusCode, snippet)
@@ -80,9 +84,10 @@ final class LLMService: ObservableObject {
             let start = Date()
             let (_, response) = try await URLSession.shared.data(for: req)
             let ms = Int(Date().timeIntervalSince(start) * 1000)
-            guard let http = response as? HTTPURLResponse else { return .failure(.unreachable("无响应")) }
+            guard let http = response as? HTTPURLResponse else { return .failure(.unreachable("no response")) }
             if http.statusCode == 200 {
-                return .success("连接成功 · \(modelName) · \(ms)ms")
+                return .success(loc("Connected · \(modelName) · \(ms)ms",
+                                    "连接成功 · \(modelName) · \(ms)ms"))
             } else {
                 return .failure(.httpStatus(http.statusCode, ""))
             }
@@ -177,13 +182,23 @@ final class LLMService: ObservableObject {
 
         var errorDescription: String? {
             switch self {
-            case .notConfigured:       return "请先在设置中配置推理服务器地址和模型名称"
-            case .badURL:              return "URL 格式错误"
-            case .unreachable(let d):  return "无法连接到服务器：\(d)"
-            case .httpStatus(let c, _): return "服务器返回错误状态码 \(c)"
-            case .emptyResponse:       return "服务器返回了空响应"
-            case .malformedJSON(let s): return "模型返回格式异常，请重试（\(s)）"
-            case .insufficientData:    return "历史数据不足，请等待更多数据后再试"
+            case .notConfigured:
+                return loc("Configure the AI server URL and model name in Settings first.",
+                           "请先在设置中配置推理服务器地址和模型名称")
+            case .badURL:
+                return loc("Invalid URL format.", "URL 格式错误")
+            case .unreachable(let d):
+                return loc("Cannot reach server: \(d)", "无法连接到服务器：\(d)")
+            case .httpStatus(let c, _):
+                return loc("Server returned status \(c).", "服务器返回错误状态码 \(c)")
+            case .emptyResponse:
+                return loc("Server returned an empty response.", "服务器返回了空响应")
+            case .malformedJSON(let s):
+                return loc("Unexpected model output, please retry. (\(s))",
+                           "模型返回格式异常，请重试（\(s)）")
+            case .insufficientData:
+                return loc("Not enough history data yet — please try again later.",
+                           "历史数据不足，请等待更多数据后再试")
             }
         }
     }

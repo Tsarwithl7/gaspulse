@@ -9,9 +9,9 @@ enum StrategyRecommendation: String, Codable {
 
     var displayText: String {
         switch self {
-        case .fillNow:  return "建议现在加油"
-        case .wait:     return "建议再等等"
-        case .neutral:  return "暂不明朗"
+        case .fillNow:  return loc("Fill Up Now",  "建议现在加油")
+        case .wait:     return loc("Wait for Now", "建议再等等")
+        case .neutral:  return loc("Unclear",      "暂不明朗")
         }
     }
 
@@ -34,9 +34,9 @@ enum StrategyConfidence: String, Codable {
 
     var displayText: String {
         switch self {
-        case .low:    return "低"
-        case .medium: return "中"
-        case .high:   return "高"
+        case .low:    return loc("Low",    "低")
+        case .medium: return loc("Medium", "中")
+        case .high:   return loc("High",   "高")
         }
     }
 
@@ -51,9 +51,9 @@ enum TrendDirection: String, Codable {
 
     var displayText: String {
         switch self {
-        case .rising:  return "上涨"
-        case .falling: return "下跌"
-        case .stable:  return "平稳"
+        case .rising:  return loc("Rising",  "上涨")
+        case .falling: return loc("Falling", "下跌")
+        case .stable:  return loc("Stable",  "平稳")
         }
     }
 
@@ -70,24 +70,19 @@ struct LocalSignals {
     let windowDays: Int
     let dataPointCount: Int
 
-    // Momentum over the window (nil = insufficient data)
     let brentMomentumPct: Double?
     let wtiMomentumPct: Double?
     let rbobMomentumPct: Double?
-    let rbobShortMomentumPct: Double?  // 5-day acceleration indicator
+    let rbobShortMomentumPct: Double?
 
-    // Crude→RBOB lead-lag (Pearson r; nil = insufficient data)
     let crudeRbobLeadLagCorr: Double?
     let leadLagDays: Int
 
-    // Crack-spread proxy = RBOB*42 - WTI ($/barrel comparable)
     let crackSpreadProxy: Double?
     let crackSpreadChange: Double?
 
-    // Futures roll days detected & corrected in the RBOB series
     let rbobRollDaysAdjusted: Int
 
-    // Vehicle profile (from user settings)
     let tankGallons: Double
     let weeklyMiles: Double
     let mpg: Double

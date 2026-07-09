@@ -6,6 +6,7 @@ struct ChartView: View {
     let range: TimeRange
 
     @State private var hoveredPoint: PricePoint?
+    @AppStorage("appLanguage") private var lang: String = "zh"
 
     private var lineColor: Color {
         guard let first = points.first, let last = points.last else { return .accentColor }
@@ -22,7 +23,7 @@ struct ChartView: View {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                         .font(.title3)
                         .foregroundStyle(.tertiary)
-                    Text("暂无历史数据")
+                    Text(loc("No data available", "暂无历史数据"))
                         .font(.caption)
                         .foregroundStyle(.tertiary)
                 }

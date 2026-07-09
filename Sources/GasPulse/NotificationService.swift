@@ -43,8 +43,10 @@ final class NotificationService: NSObject, ObservableObject {
 
     func sendTest(for symbol: OilSymbol) {
         let content = UNMutableNotificationContent()
-        content.title = "\(symbol.displayName) 价格提醒测试"
-        content.body  = "通知权限正常，GasPulse 可以发送价格提醒。"
+        content.title = loc("\(symbol.displayName) Price Alert Test",
+                            "\(symbol.displayName) 价格提醒测试")
+        content.body  = loc("Notifications are working. GasPulse can send price alerts.",
+                            "通知权限正常，GasPulse 可以发送价格提醒。")
         content.sound = .default
         let request = UNNotificationRequest(identifier: "gaspulse-test-\(symbol.rawValue)", content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
@@ -52,7 +54,6 @@ final class NotificationService: NSObject, ObservableObject {
 }
 
 extension NotificationService: UNUserNotificationCenterDelegate {
-    // Show notifications even when the app is active (menu bar panel open).
     nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
